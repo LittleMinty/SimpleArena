@@ -1,6 +1,19 @@
 local _, _, flags = love.window.getMode()
 desktopWidth, desktopHeight = love.window.getDesktopDimensions(flags.display)
 scale = 1
+sceneID = 1
+
+
+local Player = require("Player")
+local Gameplay = require("Gameplay")
+
+scenes = {["load"] = {}, ["update"] = {} , ["draw"] = {}}
+
+scenes["load"][1] = Gameplay.load
+scenes["update"][1] = Gameplay.update
+scenes["draw"][1] = Gameplay.draw
+
+
 function processResolution(ID)
     if ID == 0 then
         windowWidth , windowHeight = 320 , 240
@@ -23,17 +36,12 @@ function processResolution(ID)
     if windowWidth and windowHeight then
         scale = windowWidth/800
         love.window.setMode( windowWidth, windowHeight) 
+    else
+       windowWidth , windowHeight = 800,600
     end
 end
 
-function love.quit()
-    dataToWrite = contents:sub(2) or ""
-    dataToWrite = resolutionID..dataToWrite
-    success, message = love.filesystem.write( "saveState", dataToWrite)
-end
-
-function love.load()
-    
+function readResolution()
     if not love.filesystem.getInfo( "saveState", "file" ) then
         love.filesystem.write( "saveState", "")
     end
@@ -59,17 +67,38 @@ function love.load()
     
     resolutionID = tonumber(contents:sub(1,1)) or resolutionID
     processResolution(resolutionID)
-    print(resolutionID)
-    print(scale)
+end
+
+function love.quit()
+    dataToWrite = contents:sub(2) or ""
+    dataToWrite = resolutionID..dataToWrite
+    success, message = love.filesystem.write( "saveState", dataToWrite)
+end
+
+function love.load()
+    readResolution()
+    scenes["load"][sceneID]()
+    
+end
+
+function love.update(dt)
+    scenes["update"][sceneID](dt)
+end
+
+
+function love.draw()
+    love.graphics.setColor(0,0,0,1)
+    scenes["draw"][sceneID]()
 end
 
 --temp
-function love.keypressed(key,scancode,isrepeat)
-    if key == '2' then
-        resolutionID = 2
-    elseif key == '0' then
-        resolutionID = 0
+function love.keypressed(key)
+   if key == '1' then
+       resolutionID = 1
     elseif key == '4' then
         resolutionID = 4
+    else
+        resolutionID = 2
     end
+    
 end
