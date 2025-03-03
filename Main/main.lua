@@ -76,6 +76,12 @@ function love.quit()
 end
 
 function love.load()
+    --Setting default styles
+    love.graphics.setLineWidth(1)
+    love.graphics.setLineStyle("smooth")
+    love.graphics.setDefaultFilter("linear")
+    
+    
     readResolution()
     scenes["load"][sceneID]()
     
@@ -89,10 +95,14 @@ end
 function love.draw()
     love.graphics.setColor(0,0,0,1)
     scenes["draw"][sceneID]()
+    
+    love.graphics.print('fps: '.. love.timer.getFPS())
 end
 
 --temp
 function love.keypressed(key)
+    p1:keyPress(key)
+    
    if key == '1' then
        resolutionID = 1
     elseif key == '4' then
